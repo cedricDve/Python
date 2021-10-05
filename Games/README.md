@@ -23,7 +23,7 @@
 ! Important at the end of the script, we need to quit Pygame !
 `pygame.quit()`
 
-## Initialise & Display the game window
+## Initialise and display the game window
 
     With Pygame we can use display.set_mode(), to display the window of our game.
 
@@ -48,17 +48,17 @@
             run = False
 <hr>            
 
-## Display Images 
+## Display images 
 
 ### Load an image
     using -> pygame.image.load
     
     pygame.image.load("path/to/image")
 
-### Background Image
+### Background image
 `bg_img = pygame.image.load("./images/bg.png")`
 
-## Display Images
+## Display images
     Using -> screen.blit() ->> two parameters: image and coordoniates(tuppel: x and y coord.)
     def display_bg():    
         # Background image position -> take entire screen => (0,0)
@@ -66,8 +66,6 @@
 
 ## ! Whenever we make changes we need to update the screen
     pygame.display.update()
-
-
 
 <hr>
 
