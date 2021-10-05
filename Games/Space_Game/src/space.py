@@ -70,10 +70,28 @@ class Spaceship(pygame.sprite.Sprite):
             pygame.draw.rect(screen, green , (self.rect.x, (self.rect.bottom + 10), int(self.rect.width * (self.health_remaining/self.health_start)), 15))
 
 
+class Bullet(pygame.sprite.Sprite):
+    #Constructor
+    def __init__(self, x,y):
+        # inheriting the functionality of pygame Sprite class in our Spaceship class
+        pygame.sprite.Sprite.__init__(self)
+        # Two key-variables for Sprite: image and rect -> convert image to a rectangle
+        self.image = pygame.image.load("./images/rocket.png")
+        # using image.get_rect()
+        self.rect = self.image.get_rect()
+        # Coordinates: x and y -> position our rectangle -> rect.center
+        self.rect.center = [x,y]
+    
+    # overrid update function
+    def update(self):
+        self.rect.y -= 5
+
         
 
 # Create sprite groups -> pygame.sprite.Groups()
 spaceship_group = pygame.sprite.Group()
+# Bullet group
+bullet_group = pygame.sprite.Group()
 
 
 # Create player: instantiate spaceship
@@ -81,6 +99,10 @@ spaceship_group = pygame.sprite.Group()
 spaceship = Spaceship(int(SCREEN_WIDTH/2), SCREEN_HEIGHT - 100, 3)
 # --- Add spaceship to our spaceship group
 spaceship_group.add(spaceship)
+
+# Create bullet 
+bullet = Bullet( self.rect.centerx, self.rect.top)
+
 
 # Game loop: game will run until 'run != true'
 run = True
@@ -104,6 +126,9 @@ while run:
     spaceship.update()
     # Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
+
+    # Update bullet 
+    bullet.update()
 
     # Update displays to screen!
     pygame.display.update()
