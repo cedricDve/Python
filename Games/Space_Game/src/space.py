@@ -1,18 +1,25 @@
 import pygame
 from pygame.locals import *
+import random
 
 # Define fps and clock -> pygame.time.Clock() | To set max FPS of our Game
 fps = 60
 clock = pygame.time.Clock()
 
 SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 700
 
 # Create a (untitled)game-window:
     # display.set_mode() -> two parameters: width and height 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 # --  Add game title: display.set_caption
 pygame.display.set_caption("Space Invaders")
+
+# Game variables
+# -- rows and cols for Aliens
+rows = 5 
+cols = 5
+
 
 # Colors
 red = (255,0,0)
@@ -109,13 +116,53 @@ class Bullets(pygame.sprite.Sprite):
             # Using kill ! Kill the instance: only one bullet
             self.kill()
 
+# Aliens
+class Aliens(pygame.sprite.Sprite):
+    #Constructor
+    def __init__(self, x,y):
+        # inheriting the functionality of pygame Sprite class in our Spaceship class
+        pygame.sprite.Sprite.__init__(self)
+        # Get random images from our images file -> using random: import random
+        image = pygame.image.load("./images/alien-" + str(random.randint(1,3)) + ".png")
+        self.image = pygame.transform.scale(image, (int((SCREEN_WIDTH -200)/cols ), int((SCREEN_HEIGHT -300) / rows)))
+        # using image.get_rect()
+        self.rect = self.image.get_rect()
+        # Coordinates: x and y -> position our rectangle -> rect.center
+        self.rect.center = [x,y]
+        self.move_counter = 0
+        # Direction + right - left
+        self.move_direction = 1
+
+    def update(self):
+        # Let aliens move from right to the left
+        self.rect.x += self.move_direction
+        self.move_counter += 1
+        # ABS(counter) => 1 or -1  
+        if abs(self.move_counter) > 75:
+            # Flip movement direction ! 
+            self.move_direction *= -1
+            # Flip move_counter !
+            self.move_counter *= self.move_direction
+
         
 
 # Create sprite groups -> pygame.sprite.Groups()
 spaceship_group = pygame.sprite.Group()
 # Bullet group
 bullet_group = pygame.sprite.Group()
+# Alien group 
+alien_group = pygame.sprite.Group()
+# Create Aliens
+def create_aliens():
+    # Creating aliens depending on witch row and col positioned
+    for row in range(rows):
+        for item in range(cols):
+            # Aliens spaced by 100 px 
+            alien = Aliens(100+ item * 100, 100 + row * 70)
+            alien_group.add(alien)
 
+create_aliens()
+    
 
 # Create player: instantiate spaceship
 # - Center spaceship and at the bottom of the screen 
@@ -149,10 +196,13 @@ while run:
     
     # Update bulletgroup !Group
     bullet_group.update()
+     # Update aliengroup !Group
+    alien_group.update()
 
     # Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
     bullet_group.draw(screen)
+    alien_group.draw(screen)
 
 
     # Update displays to screen!
