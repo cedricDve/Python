@@ -44,7 +44,8 @@ class Spaceship(pygame.sprite.Sprite):
         # inheriting the functionality of pygame Sprite class in our Spaceship class
         pygame.sprite.Sprite.__init__(self)
         # Two key-variables for Sprite: image and rect -> convert image to a rectangle
-        self.image = pygame.image.load("./images/plane.png")
+        img = pygame.image.load("./images/plane.png")
+        self.image = pygame.transform.scale(img, (80, 100))
         # using image.get_rect()
         self.rect = self.image.get_rect()
         # Coordinates: x and y -> position our rectangle -> rect.center
@@ -86,6 +87,10 @@ class Spaceship(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             # restatrt timer for cooldown => time = now
             self.last_shot = time_now
+
+        # Update mask   
+        # -- Able to create an image with and ignore the transparant pixels" => use mask
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 
@@ -169,7 +174,9 @@ class Alien_Bullets(pygame.sprite.Sprite):
         if self.rect.top > SCREEN_HEIGHT:
             # Using kill ! Kill the instance: only one bullet
             self.kill()
-        if pygame.sprite.spritecollide(self, spaceship_group , False ):
+        # Whenever an alien shoots -> only touch the spaceship and not the transperant pixels => mask
+        # -- pygame.sprite.collide_mask => mask collision
+        if pygame.sprite.spritecollide(self, spaceship_group , False, pygame.sprite.collide_mask):
             self.kill()
             # When alien bullet touchs spaceship => kill alien_bullet 
             # And reduce spaceship health
