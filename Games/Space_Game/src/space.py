@@ -48,6 +48,10 @@ last_alien_shot = pygame.time.get_ticks() # initialized when game starts
 # -- Countdown for text
 countdown  = 3 # represent secs
 last_count = pygame.time.get_ticks()
+# -- Game Over
+game_over = 0 # 0 = NO game over | 1 = player has WON | -1 = GAME OVER
+
+extra_life_point = 0
 
 # Colors
 red = (255,0,0)
@@ -98,6 +102,8 @@ class Spaceship(pygame.sprite.Sprite):
         # -- cooldown in mili seconds !
         cooldown = 500
 
+        game_over = 0
+
         # Key press -> key.get_pressed()
         key = pygame.key.get_pressed()
         # LEFT KEY pressed
@@ -142,6 +148,9 @@ class Spaceship(pygame.sprite.Sprite):
             # Explosion animation
             explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
             explosion_group.add(explosion)
+            # Game over
+            game_over = -1
+        return game_over
 
 
 class Bullets(pygame.sprite.Sprite):
@@ -315,7 +324,7 @@ spaceship_group.add(spaceship)
 # Game loop: game will run until 'run != true'
 run = True
 while run:
-    # Set max fps: using -> tick() ->> expect #FPS
+    # Set max fps: using -> tick() -> expect #FPS
     clock.tick(fps)
 
     # Display Background
@@ -338,19 +347,51 @@ while run:
             # Reset timer
             last_alien_shot = time_now
 
+        # If aliens have been killed
+        if len(alien_group) == 0:
+            # User has won
+            game_over = 1
+        # Update only if game in not over
+        if game_over == 0:
 
-    
-
-        # Update spaceship 
-        spaceship.update()
+            # Update spaceship 
+            game_over = spaceship.update()
+            
+            # Update Sprite Groups
+            # -- Spaceship bullet
+            bullet_group.update()
+            # -- Aliens
+            alien_group.update()
+            alien_bullet_group.update()
+        else:
+            if game_over == -1:#Game over
+                if extra_life_point == 0:
+                    draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 80))
+                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 130))
+                
+                    key = pygame.key.get_pressed()
+                    if key[pygame.K_y]:             
+                        game_over = 0
+                        extra_life_point = 1
+                        spaceship.health_remaining = 1
         
-        # Update Sprite Groups
-        # -- Spaceship bullet
-        bullet_group.update()
-        # -- Aliens
-        alien_group.update()
-        alien_bullet_group.update()
-
+                    elif key[pygame.K_n]:
+                        run = False 
+                else:
+                    draw_text('GAME OVER!', font40, red, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 + 60))
+                    draw_text('Play Again?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 100))
+                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 150))
+                    key = pygame.key.get_pressed()
+                    if key[pygame.K_y]:  
+                        # restart game 
+                        game_over = 0
+                        countdown = 0
+                        spaceship.health_remaining = spaceship.health_start
+                    elif key[pygame.K_n]:
+                        run = False 
+            if game_over == 1:#Game won
+                draw_text('YOU WIN!', font40, green, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 + 60))
+                                   
     if countdown > 0:
         draw_text('GET READY!', font40, white, int(SCREEN_WIDTH/2 -110) ,int( SCREEN_HEIGHT/2 + 60))
         draw_text(str(countdown), font40, red , int(SCREEN_WIDTH/2 -10) ,int( SCREEN_HEIGHT/2 + 100))
