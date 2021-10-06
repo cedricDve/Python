@@ -21,9 +21,11 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Space Invaders")
 
 # Load sound: soundeffects
-explosion_fx = pygame.mixer.Sound("./sounds/killed.wav")
+explosion_fx = pygame.mixer.Sound("./sounds/dead.wav")
 explosion_fx.set_volume(0.25)
-dead_fx = pygame.mixer.Sound("./sounds/dead.wav")
+explosion2_fx = pygame.mixer.Sound("./sounds/explosion.wav")
+explosion2_fx.set_volume(0.15)
+dead_fx = pygame.mixer.Sound("./sounds/impact.wav")
 dead_fx.set_volume(0.25)
 shoot_fx =  pygame.mixer.Sound("./sounds/shoot.wav")
 shoot_fx.set_volume(0.25)
@@ -118,6 +120,8 @@ class Spaceship(pygame.sprite.Sprite):
             pygame.draw.rect(screen, green , (self.rect.x, (self.rect.bottom + 10), int(self.rect.width * (self.health_remaining/self.health_start)), 15))
         # When no health left => big explosion animation
         elif self.health_remaining <= 0:
+            # Sound effect
+            dead_fx.play()
             # Explosion animation
             explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
             explosion_group.add(explosion)
@@ -204,6 +208,8 @@ class Alien_Bullets(pygame.sprite.Sprite):
         # -- pygame.sprite.collide_mask => mask collision
         if pygame.sprite.spritecollide(self, spaceship_group , False, pygame.sprite.collide_mask):
             self.kill()
+            # Sound effect
+            explosion2_fx.play()
             # When alien bullet touchs spaceship => kill alien_bullet 
             # And reduce spaceship health
             spaceship.health_remaining -= 1
