@@ -19,7 +19,9 @@ pygame.display.set_caption("Space Invaders")
 # -- rows and cols for Aliens
 rows = 5 
 cols = 5
-
+# -- Alien cooldown
+alien_cooldown = 500 # in MS
+last_alien_shot = pygame.time.get_ticks() # initialized when game starts
 
 # Colors
 red = (255,0,0)
@@ -144,14 +146,36 @@ class Aliens(pygame.sprite.Sprite):
             # Flip move_counter !
             self.move_counter *= self.move_direction
 
-        
+class Alien_Bullets(pygame.sprite.Sprite):
+    #Constructor
+    def __init__(self, x,y):
+        # inheriting the functionality of pygame Sprite class in our Spaceship class
+        pygame.sprite.Sprite.__init__(self)
+        image = pygame.image.load("./images/alien_bullet.png")
+        self.image = pygame.transform.scale(image, (20,40))
+        self.rect = self.image.get_rect()
+        self.rect.center = [x,y]
+    
+    # overrid update function
+    def update(self):
+        # Alien_bullets go down 
+        self.rect.y += 2
+        # Remove Alien_bullets when they leave screen ! y greater then sceen-height
+        if self.rect.top > SCREEN_HEIGHT:
+            # Using kill ! Kill the instance: only one bullet
+            self.kill()
 
-# Create sprite groups -> pygame.sprite.Groups()
+
+# Create Sprite Groups -> pygame.sprite.Groups()
+# -- Spaceship Group
 spaceship_group = pygame.sprite.Group()
-# Bullet group
+# -- Bullet Group
 bullet_group = pygame.sprite.Group()
-# Alien group 
+# -- Alien group 
 alien_group = pygame.sprite.Group()
+# -- Alien_Bullet Group 
+alien_bullet_group = pygame.sprite.Group()
+
 # Create Aliens
 def create_aliens():
     # Creating aliens depending on witch row and col positioned
@@ -181,10 +205,25 @@ while run:
 
     # Display Background
     display_bg()
-    # Display images
+
+    # Create random alien_bullets -> based in a timer
+    # record current time
+    time_now = pygame.time.get_ticks()
+    # Alien shoot
+    if time_now - last_alien_shot > alien_cooldown and len(alien_bullet_group) < 5 and len(alien_group) > 0: 
+    # After one second fire a bullet and no more then 5 bullets created (until a alien_bullet reachs the bottom of the screen!
+        # Fire a bullet 
+        # -- Choose alien: picking a random alien from alien_groups.sprites
+        attacking_alien = random.choice(alien_group.sprites())
+        # -- Generate a bullet under the alien
+        alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom)
+        alien_bullet_group.add(alien_bullet)
+        # Reset timer
+        last_alien_shot = time_now
+
 
     # End the game: Event
-    # event.get() -> get all events
+    # -- event.get() -> get all events
     for event in pygame.event.get():
         # EventHandlers
         if event.type == pygame.QUIT:
@@ -194,15 +233,20 @@ while run:
     # Update spaceship 
     spaceship.update()
     
-    # Update bulletgroup !Group
+    # Update Sprite Groups
+    # -- Spaceship bullet
     bullet_group.update()
-     # Update aliengroup !Group
+    # -- Aliens
     alien_group.update()
+    alien_bullet_group.update()
 
-    # Display sprite groups: using -> draw() -> build in draw and update function of Sprite
+    
+    # Draw Sprite Groups
+    # -- Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
     bullet_group.draw(screen)
     alien_group.draw(screen)
+    alien_bullet_group.draw(screen)
 
 
     # Update displays to screen!
