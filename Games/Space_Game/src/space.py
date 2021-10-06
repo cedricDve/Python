@@ -45,10 +45,16 @@ class Spaceship(pygame.sprite.Sprite):
         self.health_start = health
         self.health_remaining = health
 
+        # Last shot variable = time 
+        self.last_shot = pygame.time.get_ticks()
+
     
     # overrid update function
     def update(self):
         speed = 8
+        # Cooldown variable for schooting
+        # -- cooldown in mili seconds !
+        cooldown = 500
 
         # Key press -> key.get_pressed()
         key = pygame.key.get_pressed()
@@ -61,6 +67,19 @@ class Spaceship(pygame.sprite.Sprite):
         if key[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:
             self.rect.x += speed
 
+        # Schooting
+        # Record current time -> limit # bullets in function of time !
+        time_now = pygame.time.get_ticks()
+        # Create bullet | time depended !
+        if key[pygame.K_SPACE] and (time_now - self.last_shot) > cooldown:
+            bullet = Bullets(self.rect.centerx, self.rect.top)
+            # Add to bullet group => each bulet go in its own update-loop!
+            bullet_group.add(bullet)
+            # restatrt timer for cooldown => time = now
+            self.last_shot = time_now
+
+
+
         # Display health bar
         # -- Draw a red rectangle, under the spaceship 
         pygame.draw.rect(screen, red , (self.rect.x,(self.rect.bottom + 10), self.rect.width, 15))
@@ -70,13 +89,13 @@ class Spaceship(pygame.sprite.Sprite):
             pygame.draw.rect(screen, green , (self.rect.x, (self.rect.bottom + 10), int(self.rect.width * (self.health_remaining/self.health_start)), 15))
 
 
-class Bullet(pygame.sprite.Sprite):
+class Bullets(pygame.sprite.Sprite):
     #Constructor
     def __init__(self, x,y):
         # inheriting the functionality of pygame Sprite class in our Spaceship class
         pygame.sprite.Sprite.__init__(self)
         # Two key-variables for Sprite: image and rect -> convert image to a rectangle
-        self.image = pygame.image.load("./images/rocket.png")
+        self.image = pygame.image.load("./images/bullet.png")
         # using image.get_rect()
         self.rect = self.image.get_rect()
         # Coordinates: x and y -> position our rectangle -> rect.center
@@ -85,6 +104,10 @@ class Bullet(pygame.sprite.Sprite):
     # overrid update function
     def update(self):
         self.rect.y -= 5
+        # Remove bullets when they leave screen ! y less then 0
+        if self.rect.bottom < 0:
+            # Using kill ! Kill the instance: only one bullet
+            self.kill()
 
         
 
@@ -100,8 +123,7 @@ spaceship = Spaceship(int(SCREEN_WIDTH/2), SCREEN_HEIGHT - 100, 3)
 # --- Add spaceship to our spaceship group
 spaceship_group.add(spaceship)
 
-# Create bullet 
-bullet = Bullet( self.rect.centerx, self.rect.top)
+
 
 
 # Game loop: game will run until 'run != true'
@@ -122,13 +144,16 @@ while run:
             # When user click's on 'X' in the top-right corner of the screen
             run = False
 
-    # Update spaceship
+    # Update spaceship 
     spaceship.update()
+    
+    # Update bulletgroup !Group
+    bullet_group.update()
+
     # Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
+    bullet_group.draw(screen)
 
-    # Update bullet 
-    bullet.update()
 
     # Update displays to screen!
     pygame.display.update()
