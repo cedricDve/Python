@@ -92,3 +92,10 @@ Alien shooting bullets
 => To create random alien_bullets -> based in a timer
 
 Colisions spaceship bullet with aliens
+Count down before game starts
+In pygame we cant display text - like a string
+We need to convert our string into an image before !
+
+# init font from pygamee.font -> otherwise error!
+pygame.font.init()
+We need a font, a color then we can render the font as an image
