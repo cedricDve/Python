@@ -20,6 +20,9 @@
 `import pygame`
 `from pygame.locals import *`
 
+## Add music using mixer
+`from pygame import mixer`
+
 ! Important at the end of the script, we need to quit Pygame !
 `pygame.quit()`
 

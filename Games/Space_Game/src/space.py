@@ -1,6 +1,11 @@
 import pygame
+from pygame import mixer
 from pygame.locals import *
 import random
+
+# init mixer => to load soundeffects
+pygame.mixer.pre_init(44100, -16, 2, 512)
+mixer.init()
 
 # Define fps and clock -> pygame.time.Clock() | To set max FPS of our Game
 fps = 60
@@ -14,6 +19,14 @@ SCREEN_HEIGHT = 700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 # --  Add game title: display.set_caption
 pygame.display.set_caption("Space Invaders")
+
+# Load sound: soundeffects
+explosion_fx = pygame.mixer.Sound("./sounds/killed.wav")
+explosion_fx.set_volume(0.25)
+dead_fx = pygame.mixer.Sound("./sounds/dead.wav")
+dead_fx.set_volume(0.25)
+shoot_fx =  pygame.mixer.Sound("./sounds/shoot.wav")
+shoot_fx.set_volume(0.25)
 
 # Game variables
 # -- rows and cols for Aliens
@@ -82,6 +95,8 @@ class Spaceship(pygame.sprite.Sprite):
         time_now = pygame.time.get_ticks()
         # Create bullet | time depended !
         if key[pygame.K_SPACE] and (time_now - self.last_shot) > cooldown:
+            # Sound effect
+            shoot_fx.play()
             bullet = Bullets(self.rect.centerx, self.rect.top)
             # Add to bullet group => each bulet go in its own update-loop!
             bullet_group.add(bullet)
@@ -131,9 +146,12 @@ class Bullets(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, alien_group, True): # when collision of self(Bullet) with an alien (in alien_group), True => do_kill (kill the alien)
             # When bullet kills an alien => kill bullet !!
             self.kill()
+            # Sound effect
+            explosion_fx.play()
             # Explosion animation
             explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
             explosion_group.add(explosion)
+           
 
 
 # Aliens
