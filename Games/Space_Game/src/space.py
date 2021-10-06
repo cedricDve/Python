@@ -101,6 +101,11 @@ class Spaceship(pygame.sprite.Sprite):
         if self.health_remaining > 0:
             # -- width of the green rectangle should change whenever the spaceship takes dammage
             pygame.draw.rect(screen, green , (self.rect.x, (self.rect.bottom + 10), int(self.rect.width * (self.health_remaining/self.health_start)), 15))
+        # When no health left => big explosion animation
+        elif self.health_remaining <= 0:
+            # Explosion animation
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
+            explosion_group.add(explosion)
 
 
 class Bullets(pygame.sprite.Sprite):
@@ -126,6 +131,9 @@ class Bullets(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, alien_group, True): # when collision of self(Bullet) with an alien (in alien_group), True => do_kill (kill the alien)
             # When bullet kills an alien => kill bullet !!
             self.kill()
+            # Explosion animation
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
+            explosion_group.add(explosion)
 
 
 # Aliens
@@ -181,6 +189,52 @@ class Alien_Bullets(pygame.sprite.Sprite):
             # When alien bullet touchs spaceship => kill alien_bullet 
             # And reduce spaceship health
             spaceship.health_remaining -= 1
+             # Explosion animation
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 1)
+            explosion_group.add(explosion)
+
+# Create Explosion class
+class Explosion(pygame.sprite.Sprite):
+    #Constructor
+    def __init__(self, x,y, size): # size to adjust size of explosion
+        # inheriting the functionality of pygame Sprite class in our Spaceship class
+        pygame.sprite.Sprite.__init__(self)
+        # List of images => for animation
+        self.images = []
+        for num in range(1,6):
+            image = pygame.image.load(f"./images/explosion{num}.png")
+            # Scale images based on size
+            if size == 1:
+                image = pygame.transform.scale(image, (20,20))
+            if size == 2:
+                image = pygame.transform.scale(image, (40,40))
+            if size == 3:
+                image = pygame.transform.scale(image, (150,150))
+            # Add image to list of images
+            self.images.append(image)
+        # index(track witch explosion img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = [x,y]
+        # counter => control the speed of animation
+        self.counter = 0
+    
+    def update(self):
+        explosion_speed = 3
+        # Update explosion animation => counter++
+        self.counter += 1
+
+        if self.counter >= explosion_speed and self.index < len(self.images) - 1 :
+            self.counter = 0
+            self.index += 1
+            self.image = self.images[self.index]
+        
+        # End the animation when completed
+        if self.index >= len(self.images) -1  and self.counter >= explosion_speed:
+            # Kill the animation
+            self.kill()
+
 
 
 # Create Sprite Groups -> pygame.sprite.Groups()
@@ -192,6 +246,9 @@ bullet_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
 # -- Alien_Bullet Group 
 alien_bullet_group = pygame.sprite.Group()
+# -- Explosion Group
+explosion_group = pygame.sprite.Group()
+
 
 # Create Aliens
 def create_aliens():
@@ -256,6 +313,8 @@ while run:
     # -- Aliens
     alien_group.update()
     alien_bullet_group.update()
+    # -- Explosion Group
+    explosion_group.update()
 
     
     # Draw Sprite Groups
@@ -264,6 +323,7 @@ while run:
     bullet_group.draw(screen)
     alien_group.draw(screen)
     alien_bullet_group.draw(screen)
+    explosion_group.draw(screen)
 
 
     # Update displays to screen!
