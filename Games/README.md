@@ -87,3 +87,5 @@ https://www.youtube.com/watch?v=bFn1XrtRnn8&ab_channel=CodingWithRuss
 Alien shooting bullets
 1. Choose Alien that will shoot
 => To create random alien_bullets -> based in a timer
+
+Colisions spaceship bullet with aliens

@@ -40,7 +40,7 @@ def display_bg():
 # Create spaceship class from pygame Sprite
 class Spaceship(pygame.sprite.Sprite):
     #Constructor
-    def __init__(self, x,y, health):
+    def __init__(self, x, y, health):
         # inheriting the functionality of pygame Sprite class in our Spaceship class
         pygame.sprite.Sprite.__init__(self)
         # Two key-variables for Sprite: image and rect -> convert image to a rectangle
@@ -117,6 +117,11 @@ class Bullets(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             # Using kill ! Kill the instance: only one bullet
             self.kill()
+        # Check if bullet is in contact with an alien group
+        if pygame.sprite.spritecollide(self, alien_group, True): # when collision of self(Bullet) with an alien (in alien_group), True => do_kill (kill the alien)
+            # When bullet kills an alien => kill bullet !!
+            self.kill()
+
 
 # Aliens
 class Aliens(pygame.sprite.Sprite):
@@ -164,6 +169,11 @@ class Alien_Bullets(pygame.sprite.Sprite):
         if self.rect.top > SCREEN_HEIGHT:
             # Using kill ! Kill the instance: only one bullet
             self.kill()
+        if pygame.sprite.spritecollide(self, spaceship_group , False ):
+            self.kill()
+            # When alien bullet touchs spaceship => kill alien_bullet 
+            # And reduce spaceship health
+            spaceship.health_remaining -= 1
 
 
 # Create Sprite Groups -> pygame.sprite.Groups()
