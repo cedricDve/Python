@@ -5,8 +5,9 @@ import random
 trained_face_data = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 
 # Get image to detect face on -> cv2 image read function -> imread()
-#img = cv2.imread('./image.jpg')
-img = cv2.imread('./image2.jpg')
+# img = cv2.imread('./image.jpg')
+img = cv2.imread('./china.jpg')
+#img = cv2.imread('./image2.jpg')
 
 # Change image to grayscale !
 # -- Using convert color function of cv2 -> cvtColor(src, mode)

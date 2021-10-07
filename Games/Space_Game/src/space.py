@@ -5,7 +5,6 @@ import random
 # init font from pygamee.font -> otherwise error!
 pygame.font.init()
 
-
 # init mixer => to load soundeffects
 pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()
@@ -422,7 +421,7 @@ while run:
         if event.type == pygame.QUIT:
             # When user click's on 'X' in the top-right corner of the screen
             run = False
-
+            
     # Update displays to screen!
     pygame.display.update()
 # QUIT Pygame! 
