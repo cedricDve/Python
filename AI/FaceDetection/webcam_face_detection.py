@@ -7,8 +7,8 @@ import pygame
 trained_face_data = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 
 # Get webcam video to detect face -> cv2.VideoCapture(0) 
-# -- 0 = default (webcam!)
-webcam = cv2.VideoCapture("./video-1.mp4") 
+    # 0 = default (webcam!)
+webcam = cv2.VideoCapture("./video/video-1.mp4") 
 
 # loop through all frames of the video (webcam)
 run = True 

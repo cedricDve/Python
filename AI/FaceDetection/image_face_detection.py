@@ -5,9 +5,9 @@ import random
 trained_face_data = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 
 # Get image to detect face on -> cv2 image read function -> imread()
-# img = cv2.imread('./image.jpg')
-img = cv2.imread('./china.jpg')
-#img = cv2.imread('./image2.jpg')
+img = cv2.imread('./images/image.jpg')
+    #img = cv2.imread('./china.jpg')
+    #img = cv2.imread('./image2.jpg')
 
 # Change image to grayscale !
 # -- Using convert color function of cv2 -> cvtColor(src, mode)
@@ -26,7 +26,10 @@ for (x,y,w,h) in face_coordinates:
 # Show grayscaled image
 cv2.imshow('Family Image FACE DETECTOR', img)
 
-
+# Save image
+result = cv2.imwrite('./images/image-facedetection.jpg', img)
+if result == True:  
+    print("Image saved correctly")
 
 #print(face_coordinates) # coordinates of the face that is detected
 

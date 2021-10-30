@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facedetection in Docker with Flask</title>
+</head>
+<body>
+    <h1>Welcome to the Facedetection Application Dockerized</h1>
+    <h3>This website has been created using Flask, in Python</h3>
+    <br>
+    <h2>Using Open-CV, you will be able to test Facial Detection.</h2>
+    <h4>Please select a feature:</h4>
+
+    <a href="{{ url_for('facedetection') }}">Facedetection on a standard family image</a>
+    <br>
+    <a href="{{ url_for('facedetection_random') }}">Facedetection on a random image</a>
+    
+    
+</body>
+</html>
