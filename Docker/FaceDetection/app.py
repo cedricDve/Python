@@ -49,7 +49,7 @@ def facedetection():
 #Face detection on a random image
 @app.route('/facedetection-random')
 def facedetection_random():
-    random_image = str(random.randrange(1,5))
+    random_image = random.randrange(1,5)
     print(random_image)
 
     img = cv2.imread(f"./static/{random_image}.jpg")
