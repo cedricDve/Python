@@ -1,31 +1,30 @@
 import pygame
-from pygame import mixer
+from pygame import mixer # for audio
 from pygame.locals import *
 import random
-# Add pymsql.cursor connected to mysql running in docker-container
-import pymysql.cursors
-import bcrypt
-import cryptography
-import keyboard
+import pymysql.cursors # Add pymsql.cursor -> connected to mysql running in docker-container
+import bcrypt # encrypt password
+import cryptography # for sha256
+import keyboard # python keyboard event
 
+# Login variable
 logged_in = False
-# init font from pygamee.font -> otherwise error!
-pygame.font.init()
 
-# init mixer => to load soundeffects
-pygame.mixer.pre_init(44100, -16, 2, 512)
+# Init Pygame-font
+pygame.font.init()
+# Init mixer => to load soundeffects
+pygame.mixer.pre_init(44100, -16, 2, 512) # to handle sound latency
 mixer.init()
 
-# Define fps and clock -> pygame.time.Clock() | To set max FPS of our Game
-fps = 60
+# Define FPS and clock -> pygame.time.Clock() | To set max FPS of our Game
+FPS = 60
 clock = pygame.time.Clock()
 
+# Screen variables
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 700
-
-# Create a (untitled)game-window:
-    # display.set_mode() -> two parameters: width and height 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# Create screen : create a (untitled)game-window:
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))# display.set_mode() -> two parameters: width and height 
 # --  Add game title: display.set_caption
 pygame.display.set_caption("Space Invaders")
 
@@ -33,7 +32,6 @@ pygame.display.set_caption("Space Invaders")
 font30 = pygame.font.SysFont('Arial', 30)
 font40 = pygame.font.SysFont('Arial', 40)
 smallfont = pygame.font.SysFont('Corbel',35)
-
 
 # Load sound: soundeffects
 explosion_sound_effect = pygame.mixer.Sound("./sounds/dead.wav")
@@ -57,24 +55,14 @@ last_alien_shot = pygame.time.get_ticks() # initialized when game starts
 # -- Countdown for text
 countdown  = 3 # represent secs
 last_count = pygame.time.get_ticks()
-
 # -- Game Over
 game_over = 0 # 0 = NO game over | 1 = player has WON | -1 = GAME OVER
-
-extra_life_point = 0
+extra_life_point = 0 
 
 # Colors
 red = (255,0,0)
 green = (0,255,0)
 white = (255,255,255)
-
-# light shade of the button
-color_light = (170,170,170)  
-# dark shade of the button
-color_dark = (100,100,100)
-
-
-text = smallfont.render('quit' , True , white)
 
 #Database connection
 db_connection = pymysql.connect(host='localhost',
@@ -83,6 +71,7 @@ db_connection = pymysql.connect(host='localhost',
                              database='spaceGame',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
+# Database function Register                          
 def register():
     register = False
     while register == False:
@@ -90,12 +79,10 @@ def register():
         name = input("Your name: ")
         email = input("Your email: ")
         psw = input("Your password: ")
-
         repeat_psw = input("Repeat your password: ")
         if(psw == repeat_psw):            
             password = psw.encode('utf-8')
             hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
-
             with db_connection:
                 with db_connection.cursor() as cursor:
                     cursor.execute("INSERT INTO users (name, email, password) VALUES (%s,%s,%s)",(name,email,hash_password,))
@@ -104,11 +91,10 @@ def register():
         else:
             print("Error, password must be the same twice")
            
-
+# Database function Login
 def login():
     global logged_in
-    while logged_in == False:
-        
+    while logged_in == False:        
         email = input("Your email: ")
         psw = input("Your password: ")
         password = psw.encode('utf-8')
@@ -126,18 +112,14 @@ def login():
                     else:
                         print("Error user not found")
 
-
-
-
-
 # Load images: using -> pygame.image.load
 bg_img = pygame.image.load("./images/bg.png")
 
 # Display background image
-# Using -> screen.blit() ->> two parameters: image and coordoniates(tuppel: x and y coord.)
+
 def display_bg():    
     # Background image position -> take entire screen => (0,0)
-    screen.blit(bg_img,(0,0))
+    screen.blit(bg_img,(0,0))# Using -> screen.blit() ->> two parameters: image and coordoniates(tuppel: x and y coord.)
     # Background image will be displayed as first => need to be set as a background, all other images will be displayed above!
 
 # Creating text
@@ -389,10 +371,6 @@ alien_bullet_group = pygame.sprite.Group()
 # -- Explosion Group
 explosion_group = pygame.sprite.Group()
 
-# -- Score Group
-score_group = pygame.sprite.Group()
-
-
 # Create Aliens
 def create_aliens():
     # Creating aliens depending on witch row and col positioned
@@ -403,13 +381,10 @@ def create_aliens():
             alien_group.add(alien)
 
 create_aliens()
-    
 
 # Create player: instantiate spaceship
-# - Center spaceship and at the bottom of the screen 
-spaceship = Spaceship(int(SCREEN_WIDTH/2), SCREEN_HEIGHT - 100, 3)
-# --- Add spaceship to our spaceship group
-spaceship_group.add(spaceship)
+spaceship = Spaceship(int(SCREEN_WIDTH/2), SCREEN_HEIGHT - 100, 3)# Center spaceship and at the bottom of the screen 
+spaceship_group.add(spaceship)# - Add spaceship to our spaceship group
 
 def game_over_text():
     draw_text('GAME OVER!', font40, red, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 ))
@@ -435,10 +410,8 @@ if keyboard.read_key() == "y":
 # Game loop: game will run until 'run != true'
 run = True
 while run:
-
-    # Set max fps: using -> tick() -> expect #FPS
-    clock.tick(fps)
-
+    # Set max FPS: using -> tick() -> expect #FPS
+    clock.tick(FPS)
     # Display Background
     display_bg()
 
@@ -467,31 +440,28 @@ while run:
             game_over = 1
         # Update only if game is not over
         if game_over == 0:
-
             # Update spaceship 
-            game_over = spaceship.update()
-            
-            # Update Sprite Groups
-            # -- Spaceship bullet
-            bullet_group.update()
+            game_over = spaceship.update()            
+            # Update Sprite Groups           
+            bullet_group.update()# -- Spaceship bullet
             # -- Aliens
             alien_group.update()
             alien_bullet_group.update()
         else:
-            if game_over == -1:#Game over
+            if game_over == -1:# Game over
                 if extra_life_point == 0:
                     draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 60))
                     draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 100))
-                
                     key = pygame.key.get_pressed()
+
                     if key[pygame.K_y]:             
                         game_over = 0
                         extra_life_point = 1
-                        spaceship.health_remaining = 1
-        
+                        spaceship.health_remaining = 1        
                     elif key[pygame.K_n]:
                         game_over_text()
                         key = pygame.key.get_pressed()
+
                         if key[pygame.K_y]:  
                             # restart game 
                             game_over = 0
@@ -504,8 +474,7 @@ while run:
                             level = 1
                             score = 0
                             rows = 2
-                            cols = 2
-                            
+                            cols = 2                            
                             
                         elif key[pygame.K_n]:
                             run = False  
@@ -587,7 +556,6 @@ while run:
         if event.type == pygame.QUIT:
             # When user click's on 'X' in the top-right corner of the screen
             run = False 
-
             
     # Update displays to screen!
     pygame.display.update()
