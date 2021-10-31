@@ -7,7 +7,7 @@ Therefore, I used Docker to containerize my application.
 
 In this part I was experimenting with Open-CV.
 
-> More info about open-cv and facial-detection can be found in Readme of AI\FaceDetection
+> More info about open-cv and frontal face-detection can be found in Readme of AI\FaceDetection
 
 ## Objective
 The objective of this application is to be able to dockerize open-cv in a Python environment.

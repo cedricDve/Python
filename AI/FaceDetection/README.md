@@ -10,7 +10,7 @@ Face detection with `Python`
 
 ## Objective
 Learn more about how to use cv2 with python. 
-Experiment with how to implement facial face detection on a different type of media.
+Experiment with how to implement frontal face detection on a different type of media.
 
 ## Program
 
@@ -28,7 +28,7 @@ https://github.com/opencv/opencv/tree/master/data/haarcascades
 
 `haarcascade_frontalface_default.xml`
 
-## Facial Face Detection - static image
+## Frontal face detection - static image
 
 1. Load pre-trained data of frontal-face-detections
     

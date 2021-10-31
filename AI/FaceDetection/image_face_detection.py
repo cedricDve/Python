@@ -19,7 +19,7 @@ for (x,y,w,h) in face_coordinates:
     # Draw rectangle for each face
     cv2.rectangle(img ,(x,y) , (x +w , y+h), (random.randrange(128,256),random.randrange(256),random.randrange(256)), 2 )
 
-# Show image with facial detection
+# Show image with frontal face detection
 cv2.imshow('Family Image FACE DETECTOR', img)
 
 # Save image
@@ -27,7 +27,7 @@ result = cv2.imwrite('./images/image-facedetection.jpg', img)
 if result == True:  
     print("Image saved correctly")
 # Save face coordinates into csv file
-with open('./facial-detection.csv', 'w') as f:
+with open('./frontalface-detection.csv', 'w') as f:
     # create the csv writer
     writer = csv.writer(f)
 
