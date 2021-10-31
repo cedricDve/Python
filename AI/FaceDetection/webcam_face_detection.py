@@ -30,18 +30,8 @@ while run:
     cv2.imshow('Family Image FACE DETECTOR', frame)
     cv2.waitKey(1)
 
-
-
-
-
-
-
 #print(face_coordinates) # coordinates of the face that is detected
 
 # -- let cv2 show image untill a key is pressed
-
-
-
-
 
 print("Code Completed")

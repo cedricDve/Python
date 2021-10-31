@@ -99,3 +99,30 @@ We need to convert our string into an image before !
 # init font from pygamee.font -> otherwise error!
 pygame.font.init()
 We need a font, a color then we can render the font as an image
+
+
+
+## Mouse event
+
+  for event in pygame.event.get():
+      if event.type == pygame.MOUSEBUTTONDOWN:         
+            #Click on Quit
+            if SCREEN_WIDTH/2 <= mouse[0] <= SCREEN_WIDTH/2+140 and SCREEN_HEIGHT/2 <= mouse[1] <= SCREEN_HEIGHT/2+40:
+                register()
+
+
+      
+    # stores the (x,y) coordinates into
+    # the variable as a tuple
+    mouse = pygame.mouse.get_pos()
+      
+    # if mouse is hovered on a button it
+    # changes to lighter shade 
+    if SCREEN_WIDTH/2 <= mouse[0] <= SCREEN_WIDTH/2+140 and SCREEN_HEIGHT/2 <= mouse[1] <= SCREEN_HEIGHT/2+40:
+        pygame.draw.rect(screen,color_light,[SCREEN_WIDTH/2,SCREEN_HEIGHT/2,140,40])
+          
+    else:
+        pygame.draw.rect(screen,color_dark,[SCREEN_WIDTH/2,SCREEN_HEIGHT/2,140,40])
+      
+    # superimposing the text onto our button
+    screen.blit(text , (SCREEN_WIDTH/2+50,SCREEN_HEIGHT/2))

@@ -30,7 +30,27 @@ def db_init():
 
             cursor.execute("DROP DATABASE IF EXISTS mainDB")
             cursor.execute("CREATE DATABASE mainDB")
+            cursor.execute("DROP DATABASE IF EXISTS spaceGame")
+            cursor.execute("CREATE DATABASE spaceGame")
             cursor.close()
+        connection.commit()
+
+    db_connection = pymysql.connect(host='mysqldb',
+                            user='root',
+                            password='p@ssw0rd1',
+                            database='spaceGame',
+                            charset='utf8mb4',
+                            cursorclass=pymysql.cursors.DictCursor)
+
+    with db_connection:
+        with db_connection.cursor() as cursor:
+
+            cursor.execute("DROP TABLE IF EXISTS users")
+            cursor.execute("CREATE TABLE users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), email VARCHAR(255), password VARCHAR(255), UNIQUE KEY `email` (`email`))")
+            cursor.close()
+        db_connection.commit()
+
+ 
 
     cur = mysql.connection.cursor() 
     cur.execute("DROP TABLE IF EXISTS users")
@@ -38,6 +58,8 @@ def db_init():
     mysql.connection.commit()
 
     return redirect(url_for('home'))
+
+
 
    
 
@@ -91,4 +113,4 @@ def logout():
 
 if __name__ == '__main__':
     app.secret_key = "^A%DJAJU^JJ123"
-    app.run(debug=True, host ='0.0.0.0' )
+    app.run(debug=True, host ='0.0.0.0')

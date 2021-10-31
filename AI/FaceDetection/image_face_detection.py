@@ -36,7 +36,4 @@ if result == True:
 # -- let cv2 show image untill a key is pressed
 cv2.waitKey()
 
-
-
-
 print("Code Completed")

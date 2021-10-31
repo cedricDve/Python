@@ -2,6 +2,13 @@ import pygame
 from pygame import mixer
 from pygame.locals import *
 import random
+# Add pymsql.cursor connected to mysql running in docker-container
+import pymysql.cursors
+import bcrypt
+import cryptography
+import keyboard
+
+logged_in = False
 # init font from pygamee.font -> otherwise error!
 pygame.font.init()
 
@@ -25,6 +32,7 @@ pygame.display.set_caption("Space Invaders")
 # Define fonts
 font30 = pygame.font.SysFont('Arial', 30)
 font40 = pygame.font.SysFont('Arial', 40)
+smallfont = pygame.font.SysFont('Corbel',35)
 
 
 # Load sound: soundeffects
@@ -38,15 +46,18 @@ shoot_sound_effect =  pygame.mixer.Sound("./sounds/shoot.wav")
 shoot_sound_effect.set_volume(0.25)
 
 # Game variables
+level = 1
+score = 0
 # -- rows and cols for Aliens
-rows = 5 
-cols = 5
+rows = 2
+cols = 2
 # -- Alien cooldown
 alien_cooldown = 500 # in MS
 last_alien_shot = pygame.time.get_ticks() # initialized when game starts
 # -- Countdown for text
 countdown  = 3 # represent secs
 last_count = pygame.time.get_ticks()
+
 # -- Game Over
 game_over = 0 # 0 = NO game over | 1 = player has WON | -1 = GAME OVER
 
@@ -56,6 +67,68 @@ extra_life_point = 0
 red = (255,0,0)
 green = (0,255,0)
 white = (255,255,255)
+
+# light shade of the button
+color_light = (170,170,170)  
+# dark shade of the button
+color_dark = (100,100,100)
+
+
+text = smallfont.render('quit' , True , white)
+
+#Database connection
+db_connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='p@ssw0rd1',
+                             database='spaceGame',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
+def register():
+    register = False
+    while register == False:
+        print("Please answer to the following questions:")
+        name = input("Your name: ")
+        email = input("Your email: ")
+        psw = input("Your password: ")
+
+        repeat_psw = input("Repeat your password: ")
+        if(psw == repeat_psw):            
+            password = psw.encode('utf-8')
+            hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
+
+            with db_connection:
+                with db_connection.cursor() as cursor:
+                    cursor.execute("INSERT INTO users (name, email, password) VALUES (%s,%s,%s)",(name,email,hash_password,))
+                db_connection.commit()
+                register = True
+        else:
+            print("Error, password must be the same twice")
+           
+
+def login():
+    global logged_in
+    while logged_in == False:
+        
+        email = input("Your email: ")
+        psw = input("Your password: ")
+        password = psw.encode('utf-8')
+        with db_connection:
+            with db_connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
+                user = cursor.fetchone()
+                if (user != None):
+                    if len(user) > 0:
+                        if bcrypt.hashpw(password, user["password"].encode('utf-8')) == user["password"].encode('utf-8'):
+                            print("Logged in successfully")
+                            logged_in = True
+                        else:
+                            print("Error password and email not match")
+                    else:
+                        print("Error user not found")
+
+
+
+
 
 # Load images: using -> pygame.image.load
 bg_img = pygame.image.load("./images/bg.png")
@@ -78,7 +151,7 @@ class Spaceship(pygame.sprite.Sprite):
     def __init__(self, x, y, health):
         # inheriting the functionality of pygame Sprite class in our Spaceship class
         pygame.sprite.Sprite.__init__(self)
-        # Two key-variables for Sprite: image and rect -> convert image to a rectangle
+         # Two key-variables for Sprite: image and rect -> convert image to a rectangle
         img = pygame.image.load("./images/plane.png")
         self.image = pygame.transform.scale(img, (80, 100))
         # using image.get_rect()
@@ -102,6 +175,13 @@ class Spaceship(pygame.sprite.Sprite):
         cooldown = 500
 
         game_over = 0
+
+        if(score >= 500):           
+            img = pygame.image.load("./images/plane-1.png")
+            self.image = pygame.transform.scale(img, (80, 100))
+        elif(score >= 1000):
+            img = pygame.image.load("./images/plane-2.png")
+            self.image = pygame.transform.scale(img, (80, 100))
 
         # Key press -> key.get_pressed()
         key = pygame.key.get_pressed()
@@ -180,6 +260,11 @@ class Bullets(pygame.sprite.Sprite):
             # Explosion animation
             explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
             explosion_group.add(explosion)
+
+            # Add 100 to score            
+            global score
+            score = score + 100
+            info_score()
            
 
 
@@ -191,7 +276,7 @@ class Aliens(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         # Get random images from our images file -> using random: import random
         image = pygame.image.load("./images/alien-" + str(random.randint(1,3)) + ".png")
-        self.image = pygame.transform.scale(image, (int((SCREEN_WIDTH -200)/cols ), int((SCREEN_HEIGHT -300) / rows)))
+        self.image = pygame.transform.scale(image, (int((SCREEN_WIDTH -300)/cols ), int((SCREEN_HEIGHT -300) / rows)))
         # using image.get_rect()
         self.rect = self.image.get_rect()
         # Coordinates: x and y -> position our rectangle -> rect.center
@@ -282,9 +367,15 @@ class Explosion(pygame.sprite.Sprite):
         # End the animation when completed
         if self.index >= len(self.images) -1  and self.counter >= explosion_speed:
             # Kill the animation
-            self.kill()
+            self.kill()        
 
 
+# Info Game
+def info_level():
+    draw_text(f'Level:{level}', font30, white, int(SCREEN_WIDTH - 150) ,int( 10))
+
+def info_score():
+    draw_text(f'Score:{score}', font30, white, int(SCREEN_WIDTH - 150) ,int( 40))
 
 # Create Sprite Groups -> pygame.sprite.Groups()
 # -- Spaceship Group
@@ -297,6 +388,9 @@ alien_group = pygame.sprite.Group()
 alien_bullet_group = pygame.sprite.Group()
 # -- Explosion Group
 explosion_group = pygame.sprite.Group()
+
+# -- Score Group
+score_group = pygame.sprite.Group()
 
 
 # Create Aliens
@@ -317,12 +411,18 @@ spaceship = Spaceship(int(SCREEN_WIDTH/2), SCREEN_HEIGHT - 100, 3)
 # --- Add spaceship to our spaceship group
 spaceship_group.add(spaceship)
 
+def game_over_text():
+    draw_text('GAME OVER!', font40, red, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 ))
+    draw_text('Play Again?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 40))
+    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 80))
+
 
 
 
 # Game loop: game will run until 'run != true'
 run = True
 while run:
+
     # Set max fps: using -> tick() -> expect #FPS
     clock.tick(fps)
 
@@ -331,6 +431,8 @@ while run:
 
     # Countdown before game starts
     if countdown == 0:
+        info_level()
+        info_score()
         # Create random alien_bullets -> based in a timer
         # record current time
         time_now = pygame.time.get_ticks()
@@ -350,7 +452,7 @@ while run:
         if len(alien_group) == 0:
             # User has won
             game_over = 1
-        # Update only if game in not over
+        # Update only if game is not over
         if game_over == 0:
 
             # Update spaceship 
@@ -365,8 +467,8 @@ while run:
         else:
             if game_over == -1:#Game over
                 if extra_life_point == 0:
-                    draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 80))
-                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 130))
+                    draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 60))
+                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 100))
                 
                     key = pygame.key.get_pressed()
                     if key[pygame.K_y]:             
@@ -375,25 +477,77 @@ while run:
                         spaceship.health_remaining = 1
         
                     elif key[pygame.K_n]:
-                        run = False 
+                        game_over_text()
+                        key = pygame.key.get_pressed()
+                        if key[pygame.K_y]:  
+                            # restart game 
+                            game_over = 0
+                            countdown = 0
+                            extra_life_point = 0 
+                            spaceship.health_remaining = spaceship.health_start
+                            alien_group.empty()
+                            alien_bullet_group.empty()
+                            create_aliens()
+                            level = 1
+                            score = 0
+                            rows = 2
+                            cols = 2
+                            
+                            
+                        elif key[pygame.K_n]:
+                            run = False  
                 else:
-                    draw_text('GAME OVER!', font40, red, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 + 60))
-                    draw_text('Play Again?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 100))
-                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 150))
+                    game_over_text()
                     key = pygame.key.get_pressed()
                     if key[pygame.K_y]:  
                         # restart game 
                         game_over = 0
                         countdown = 0
+                        extra_life_point = 0 
                         spaceship.health_remaining = spaceship.health_start
+                        alien_group.empty()
+                        alien_bullet_group.empty()
+                        create_aliens()
+                        level = 1
+                        score = 0
+                        rows = 2
+                        cols = 2
+
                     elif key[pygame.K_n]:
                         run = False 
             if game_over == 1:#Game won
-                draw_text('YOU WIN!', font40, green, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2 + 60))
+             
+               
+                draw_text('LEVEL WON!', font40, green, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2))
+                draw_text('Continue to next level?', font40, white, int(SCREEN_WIDTH/2 - 130) ,int( SCREEN_HEIGHT/2 + 40))
+                draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 120) ,int( SCREEN_HEIGHT/2 + 80))
+                key = pygame.key.get_pressed()
+                if key[pygame.K_y]:  
+                    level = level +1 
+                    if(level <= 3):
+                        rows = rows +1 
+                        cols = cols +1
+                    elif(level <= 10):
+                       alien_cooldown = alien_cooldown - 200 # in MS
+                    elif(level <= 12):
+                        rows = rows +1 
+                        cols = cols +1
+                    elif(level <= 20):
+                       alien_cooldown = alien_cooldown - 25 # in MS
+                    # restart game 
+                    game_over = 0
+                    countdown = 0
+                    alien_group.empty()
+                    create_aliens()
+
+                elif key[pygame.K_n]:
+                    run = False 
+                
+
                                    
     if countdown > 0:
-        draw_text('GET READY!', font40, white, int(SCREEN_WIDTH/2 -110) ,int( SCREEN_HEIGHT/2 + 60))
-        draw_text(str(countdown), font40, red , int(SCREEN_WIDTH/2 -10) ,int( SCREEN_HEIGHT/2 + 100))
+        draw_text('GET READY!', font40, white, int(SCREEN_WIDTH/2 -110) ,int( SCREEN_HEIGHT/2 ))
+        draw_text(str(countdown), font40, red , int(SCREEN_WIDTH/2 -10) ,int( SCREEN_HEIGHT/2 + 40))
        
         count_timer = pygame.time.get_ticks()
         if count_timer - last_count > 1000: # 1second past
@@ -403,8 +557,7 @@ while run:
 
     # -- Explosion Group
     explosion_group.update()
-
-    
+ 
     # Draw Sprite Groups
     # -- Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
@@ -420,12 +573,10 @@ while run:
         # EventHandlers
         if event.type == pygame.QUIT:
             # When user click's on 'X' in the top-right corner of the screen
-            run = False
+            run = False 
+
             
     # Update displays to screen!
     pygame.display.update()
 # QUIT Pygame! 
 pygame.quit()
-
-
- 
