@@ -12,7 +12,7 @@
 
 Goal:
 
-> Learn the basics of Python and demonstrate thaht I can create a basic functional game.
+> Learn the basics of Python and demonstrate that I can create a basic functional game.
 Why not start with an old, fancy game like Space Invaders?
 
 > Creating a Python game using PyGame.
@@ -30,7 +30,7 @@ Why not start with an old, fancy game like Space Invaders?
 
 >`pygame.quit()`
 
-## Initialise and display the game window
+## Initialize and display the game window
 
     With Pygame we can use display.set_mode(), to display the window of our game.
 
@@ -95,7 +95,7 @@ Why not start with an old, fancy game like Space Invaders?
 
 > To create random alien_bullets -> based on a timer
 
-Colisions spaceship bullet with aliens
+Collisions spaceship bullet with aliens
 Count down before game starts
 ## Display text
 In pygame we can't display text ~ like a string.
