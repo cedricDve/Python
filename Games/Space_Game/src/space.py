@@ -86,14 +86,14 @@ def register():
             with db_connection:
                 with db_connection.cursor() as cursor:
                     cursor.execute("INSERT INTO users (name, email, password) VALUES (%s,%s,%s)",(name,email,hash_password,))
-                db_connection.commit()
-                register = True
+                    db_connection.commit()
+                    register = True
         else:
             print("Error, password must be the same twice")
            
 # Database function Login
 def login():
-    global logged_in
+    global logged_in, email
     while logged_in == False:        
         email = input("Your email: ")
         psw = input("Your password: ")
@@ -112,14 +112,18 @@ def login():
                     else:
                         print("Error user not found")
 def update_data():
+    db_connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='p@ssw0rd1',
+                             database='spaceGame',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
     with db_connection:
         with db_connection.cursor() as cursor:
-            cursor.execute("DROP TABLE IF EXISTS scores")
-            cursor.execute("CREATE TABLE scores (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), score INT, level INT)")
+            global email
             cursor.execute("INSERT INTO scores (email, score, level) VALUES (%s, %s, %s)",(email,score, level))
-            cursor.close()
-        db_connection.commit()
-        print("Database update")
+            db_connection.commit()
+     
     
 # Load images: using -> pygame.image.load
 bg_img = pygame.image.load("./images/bg.png")
@@ -412,7 +416,20 @@ def game_over_text():
     draw_text('Play Again?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 40))
     draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 80))
 
-    
+
+# Authentication 
+# -- Before the game starts a user need to authenticate
+print("Please login to be able to save you points: \n Press (x) to login  \n Press (y) to register \n ")
+# Login
+if keyboard.read_key() == "x":
+    print("Login")
+    login() 
+# Register 
+if keyboard.read_key() == "y":
+    print("Register")
+    register()
+    print("You are now ready to go !")
+    print("The game will start .. NOW")
 # Game loop: game will run until 'run != true'
 run = True
 while run:

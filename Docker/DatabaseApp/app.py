@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL,MySQLdb
 import bcrypt
 import pymysql.cursors
+import json
 
 app = Flask(__name__)
 # MySQL Config variables
@@ -16,6 +17,39 @@ mysql = MySQL(app)
 def home():
     return render_template("home.html")
 
+@app.route('/users')
+def get_widgets() :
+    # Connect to the database
+    connection = pymysql.connect(host='mysqldb',
+                                user='root',
+                                password='p@ssw0rd1',
+                                database='mainDB',
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor)
+
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM users")
+            users = cursor.fetchall()
+          
+        return json.dumps(users)
+
+@app.route('/scores')
+def get_scores():
+    # Connect to the database
+    connection = pymysql.connect(host='mysqldb',
+                                user='root',
+                                password='p@ssw0rd1',
+                                database='mainDB',
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor)
+
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM scores")
+            scores = cursor.fetchall()
+          
+        return json.dumps(scores)
 
 @app.route('/initdb')
 def db_init():
@@ -47,6 +81,8 @@ def db_init():
 
             cursor.execute("DROP TABLE IF EXISTS users")
             cursor.execute("CREATE TABLE users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), email VARCHAR(255), password VARCHAR(255), UNIQUE KEY `email` (`email`))")
+            cursor.execute("DROP TABLE IF EXISTS scores")
+            cursor.execute("CREATE TABLE scores (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), score INT, level INT)")
             cursor.close()
         db_connection.commit()
 
