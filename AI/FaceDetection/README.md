@@ -1,4 +1,3 @@
-
 # FACE DETECTION
 
 Face detection with `Python`
@@ -9,7 +8,9 @@ Face detection with `Python`
 
 3. Train the algorithm to detect faces
 
-
+## Objective
+Learn more about how to use cv2 with python. 
+Experiment with how to implement facial face detection on a different type of media.
 
 ## Program
 
@@ -18,41 +19,43 @@ https://vovkos.github.io/doxyrest-showcase/opencv/sphinx_rtd_theme/index.html
 ### Install OpenCV
 `pip install opencv-python`
 
-    Import opencv using " import cv2".
+Import opencv using `import cv2`
 
-Using haarcascade algorithm with prebuild datafiles, from github:
+### Haarcascade algorithm
+
+>Using haarcascade algorithm with prebuild datafiles, from github:
 https://github.com/opencv/opencv/tree/master/data/haarcascades
 
 `haarcascade_frontalface_default.xml`
 
-## Image face detection
+## Facial Face Detection - static image
 
 1. Load pre-trained data of frontal-face-detections
     
     `trained_face_data = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')`
 
-    Note: We use CascadeClassifier (to detect object), a OpenCV function that expect a path to the file that contains pre-trained data.
+    >Note: We use CascadeClassifier (to detect object), a OpenCV function that expect a path to the file that contains pre-trained data.
 
 2. Choose an image to try-out our face-detection
     
     `img = cv2.imread('./image.jpg')`
 
-    Note: We use imread, a OpenCv function that allows us to read an image.
+    >Note: We use imread, a OpenCv function that allows us to read an image.
 
 3. We must grayscale our image !
     
     `grayscaled_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)# Note RGB is BGR in OpenCV !`
 
-    Note: We use cvtColor, an OpenCV function that allows us to convert an image.
+    >Note: We use cvtColor, an OpenCV function that allows us to convert an image.
     cvtColor(src, dst, code, dstCN )
     
-    Code for grayscaled image: COLOR_BGR2GRAY
+    Code for grayscaled image:`` COLOR_BGR2GRAY``
 
 4. Detect face on selected image
     
     `face_coordinates = trained_face_data.detectMultiScale(grayscaled_img)`
 
-    Note: We use detectMultiScale. Detects object independing the size of the image(input) => face will be detected. The detected objects are returned as a list of rectangles
+    >Note: We use detectMultiScale. Detects object independing the size of the image(input). The detected objects are returned as a list of rectangles.
 
 5. Show result: show grayscaled image
 
@@ -62,7 +65,7 @@ https://github.com/opencv/opencv/tree/master/data/haarcascades
 
 6. Draw rectangle around the detected face (on the image)
 
-    Note: we dont know how much faces their will be on the image. Therefor we loop through our face_coordinates (array).
+    Note: we don't know how many faces there will be on the image. Therefore we loop through our face_coordinates (array).
 
     `for (x,y,w,h) in face_coordinates:`
     
@@ -72,6 +75,13 @@ https://github.com/opencv/opencv/tree/master/data/haarcascades
 
 ## Video face detection
 
-## Real-time face detection
+### Real-time face detection using webcam
 
-webcam = cv2.VideoCapture(0) # 0 means default => webcam 
+``webcam = cv2.VideoCapture(0) ``
+
+> Note: 0 means default => webcam 
+
+
+### Real-time face detection using a video file
+
+``webcam = cv2.VideoCapture('path/to/file') ``
