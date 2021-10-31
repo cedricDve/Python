@@ -15,11 +15,11 @@ Using Flask, to be able to display the application on a webpage, this way it is 
 
 # Run with a single-command
 
-Using docker and docker-compose, by creating a dockerfile and a docker-compose.yaml file, it is realy easy to launch this application.
-Only prerequest in ofcourse to have docker installed ( on windows I highly advise the docker-desktop version).
+Using docker and docker-compose, by creating a dockerfile and a docker-compose.yaml file, it is really easy to launch this application.
+Only prerequest is of course: to have docker installed (on windows I highly advise the docker-desktop version).
 
 Once this done, in the command line type:
-`docker-compose up`
+>`docker-compose up`
 
 > Note: you need to be in the Docker\FaceDetection folder.
 
