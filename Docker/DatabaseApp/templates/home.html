@@ -8,19 +8,22 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
 
-            Home page
-
-
             {% if session['name'] %}
 
 
             Welcome {{ session['name'] }}
 
+            <h1>Discover our functionalities:</h1>
+            <a href="{{ url_for('get_users') }}">Fetch all users</a>
+            <br>
+            <a href="{{ url_for('get_scores') }}">Fetch all scores</a>
+
 
             {% else %}
 
 
-            Not login
+            <p>Not loged in</p>
+            <h3>Please log in to discover our functionalities:</h3>
 
 
             {% endif %}

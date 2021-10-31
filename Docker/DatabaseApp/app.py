@@ -18,7 +18,7 @@ def home():
     return render_template("home.html")
 
 @app.route('/users')
-def get_widgets() :
+def get_users() :
     # Connect to the database
     connection = pymysql.connect(host='mysqldb',
                                 user='root',
@@ -40,7 +40,7 @@ def get_scores():
     connection = pymysql.connect(host='mysqldb',
                                 user='root',
                                 password='p@ssw0rd1',
-                                database='mainDB',
+                                database='spaceGame',
                                 charset='utf8mb4',
                                 cursorclass=pymysql.cursors.DictCursor)
 
