@@ -10,9 +10,12 @@
 
 ## Goals / Objectives
 
-    Goal:
-    * Creating a Python game using PyGame. Why not start with an old, fancy game like Space Invaders?
-    * Learn the basics of Python in a period of two weeks, through documentations and video's, able to create a functional game.
+Goal:
+
+> Learn the basics of Python and demonstrate thaht I can create a basic functional game.
+Why not start with an old, fancy game like Space Invaders?
+
+> Creating a Python game using PyGame.
 <hr>
 
 # Pygame
@@ -20,22 +23,24 @@
 `import pygame`
 `from pygame.locals import *`
 
-## Add music using mixer
-`from pygame import mixer`
+## Adding music -using mixer
+> `from pygame import mixer`
 
-! Important at the end of the script, we need to quit Pygame !
-`pygame.quit()`
+> Important at the end of the script, we need to quit Pygame 
+
+>`pygame.quit()`
 
 ## Initialise and display the game window
 
     With Pygame we can use display.set_mode(), to display the window of our game.
 
-`screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))`
+>`screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))`
     
     Note: This will append an untitled window !
 
 > To set a title we can use display.set_caption(), 
-`pygame.display.set_caption("Name of the App")`
+
+>`pygame.display.set_caption("Name of the App")`
 
 ## Game loop
     run = True
@@ -54,12 +59,12 @@
 ## Display images 
 
 ### Load an image
-    using -> pygame.image.load
+>using -> ``pygame.image.load``
     
-    pygame.image.load("path/to/image")
+>``  pygame.image.load("path/to/image")``
 
 ### Background image
-`bg_img = pygame.image.load("./images/bg.png")`
+> `bg_img = pygame.image.load("./images/bg.png")`
 
 ## Display images
     Using -> screen.blit() ->> two parameters: image and coordoniates(tuppel: x and y coord.)
@@ -68,7 +73,7 @@
         screen.blit(bg_img,(0,0))
 
 ## ! Whenever we make changes we need to update the screen
-    pygame.display.update()
+>``pygame.display.update()``
 
 <hr>
 
@@ -82,23 +87,28 @@
 <hr>
 
 
-https://www.youtube.com/watch?v=bFn1XrtRnn8&ab_channel=CodingWithRuss
 
+# Space Game 
 
-
-
-Alien shooting bullets
+## Aliens - Shooting bullets
 1. Choose Alien that will shoot
-=> To create random alien_bullets -> based in a timer
+
+> To create random alien_bullets -> based on a timer
 
 Colisions spaceship bullet with aliens
 Count down before game starts
-In pygame we cant display text - like a string
-We need to convert our string into an image before !
+## Display text
+In pygame we can't display text ~ like a string.
 
-# init font from pygamee.font -> otherwise error!
-pygame.font.init()
-We need a font, a color then we can render the font as an image
+>We need to convert our string into an image before !
+
+# Init font
+
+>  Initialize font from pygame.font -> otherwise error!
+
+``pygame.font.init()``
+
+>We need a font and a color, then we can render the font as an image.
 
 
 

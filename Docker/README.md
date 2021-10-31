@@ -3,7 +3,7 @@
 Due to the fact I am using more then one computer, a desktop computer and a laptop. 
 I needed a solution to be able to work productivly, without losing my time downloading software on each of my computers.
 
-Therefor, I used Docker to containerize my application.
+Therefore, I used Docker to containerize my application.
 
 In this part I was experimenting with Open-CV.
 
