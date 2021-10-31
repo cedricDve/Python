@@ -9,7 +9,7 @@ import keyboard # python keyboard event
 
 # Login variable
 logged_in = False
-
+email = ""
 # Init Pygame-font
 pygame.font.init()
 # Init mixer => to load soundeffects
@@ -111,7 +111,16 @@ def login():
                             print("Error password and email not match")
                     else:
                         print("Error user not found")
-
+def update_data():
+    with db_connection:
+        with db_connection.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS scores")
+            cursor.execute("CREATE TABLE scores (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), score INT, level INT)")
+            cursor.execute("INSERT INTO scores (email, score, level) VALUES (%s, %s, %s)",(email,score, level))
+            cursor.close()
+        db_connection.commit()
+        print("Database update")
+    
 # Load images: using -> pygame.image.load
 bg_img = pygame.image.load("./images/bg.png")
 
@@ -164,6 +173,11 @@ class Spaceship(pygame.sprite.Sprite):
         elif(score >= 1000):
             img = pygame.image.load("./images/plane-2.png")
             self.image = pygame.transform.scale(img, (80, 100))
+        
+        if(score >= 1500):
+            cooldown = 400
+        if(score >= 2000):
+            cooldown = 300
 
         # Key press -> key.get_pressed()
         key = pygame.key.get_pressed()
@@ -377,8 +391,15 @@ def create_aliens():
     for row in range(rows):
         for item in range(cols):
             # Aliens spaced by 100 px 
-            alien = Aliens(100+ item * 100, 100 + row * 70)
-            alien_group.add(alien)
+            if ( rows == 2):
+                alien = Aliens(100+ item * 200, 100 + row * 200)
+                alien_group.add(alien)
+            elif ( rows <= 5):
+                alien = Aliens(100+ item * 150, 70 + row * 70)
+                alien_group.add(alien)
+            else:
+                alien = Aliens(100+ item * 100, 50 + row * 70)
+                alien_group.add(alien)
 
 create_aliens()
 
@@ -391,21 +412,6 @@ def game_over_text():
     draw_text('Play Again?', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 40))
     draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 100) ,int( SCREEN_HEIGHT/2 + 80))
 
-
-
-# Authentication 
-# -- Before the game starts a user need to authenticate
-print("Please login to be able to save you points: \n Press (x) to login  \n Press (y) to register \n ")
-# Login
-if keyboard.read_key() == "x":
-    print("Login")
-    login() 
-# Register 
-if keyboard.read_key() == "y":
-    print("Register")
-    register()
-    print("You are now ready to go !")
-    print("The game will start .. NOW")
     
 # Game loop: game will run until 'run != true'
 run = True
@@ -414,7 +420,7 @@ while run:
     clock.tick(FPS)
     # Display Background
     display_bg()
-
+  
     # Countdown before game starts
     if countdown == 0:
         info_level()
@@ -424,113 +430,100 @@ while run:
         time_now = pygame.time.get_ticks()
         # Alien shoot
         if time_now - last_alien_shot > alien_cooldown and len(alien_bullet_group) < 5 and len(alien_group) > 0: 
-        # After one second fire a bullet and no more then 5 bullets created (until a alien_bullet reachs the bottom of the screen!
+            # After one second fire a bullet and no more then 5 bullets created (until a alien_bullet reachs the bottom of the screen!
             # Fire a bullet 
-            # -- Choose alien: picking a random alien from alien_groups.sprites
-            attacking_alien = random.choice(alien_group.sprites())
+            attacking_alien = random.choice(alien_group.sprites())# Choose random alien from alien_groups.sprites
             # -- Generate a bullet under the alien
             alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom)
             alien_bullet_group.add(alien_bullet)
             # Reset timer
             last_alien_shot = time_now
-
-        # If aliens have been killed
-        if len(alien_group) == 0:
+      
+        if len(alien_group) == 0:# If aliens have been killed
             # User has won
-            game_over = 1
-        # Update only if game is not over
-        if game_over == 0:
+            game_over = 1        
+     
+        if game_over == 0:# Update only if game is not over
             # Update spaceship 
             game_over = spaceship.update()            
             # Update Sprite Groups           
-            bullet_group.update()# -- Spaceship bullet
-            # -- Aliens
+            bullet_group.update()
             alien_group.update()
             alien_bullet_group.update()
-        else:
-            if game_over == -1:# Game over
-                if extra_life_point == 0:
-                    draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 60))
-                    draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 100))
-                    key = pygame.key.get_pressed()
 
-                    if key[pygame.K_y]:             
-                        game_over = 0
-                        extra_life_point = 1
-                        spaceship.health_remaining = 1        
-                    elif key[pygame.K_n]:
-                        game_over_text()
-                        key = pygame.key.get_pressed()
+        elif game_over == -1:# Game over
+            if extra_life_point == 0:
+                draw_text('One last life-point ?', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 60))
+                draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 110) ,int( SCREEN_HEIGHT/2 + 100))
+                key = pygame.key.get_pressed()
 
-                        if key[pygame.K_y]:  
-                            # restart game 
-                            game_over = 0
-                            countdown = 0
-                            extra_life_point = 0 
-                            spaceship.health_remaining = spaceship.health_start
-                            alien_group.empty()
-                            alien_bullet_group.empty()
-                            create_aliens()
-                            level = 1
-                            score = 0
-                            rows = 2
-                            cols = 2                            
-                            
-                        elif key[pygame.K_n]:
-                            run = False  
-                else:
-                    game_over_text()
-                    key = pygame.key.get_pressed()
-                    if key[pygame.K_y]:  
-                        # restart game 
-                        game_over = 0
-                        countdown = 0
-                        extra_life_point = 0 
-                        spaceship.health_remaining = spaceship.health_start
-                        alien_group.empty()
-                        alien_bullet_group.empty()
-                        create_aliens()
-                        level = 1
-                        score = 0
-                        rows = 2
-                        cols = 2
-
-                    elif key[pygame.K_n]:
-                        run = False 
-            if game_over == 1:#Game won
-             
-               
-                draw_text('LEVEL WON!', font40, green, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2))
-                draw_text('Continue to next level?', font40, white, int(SCREEN_WIDTH/2 - 130) ,int( SCREEN_HEIGHT/2 + 40))
-                draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 120) ,int( SCREEN_HEIGHT/2 + 80))
+                if key[pygame.K_y]:             
+                    game_over = 0
+                    extra_life_point = 1
+                    spaceship.health_remaining = 1        
+                elif key[pygame.K_n]:  
+                    # Save data 
+                    update_data()                          
+                    run = False  
+            else:
+                game_over_text()
                 key = pygame.key.get_pressed()
                 if key[pygame.K_y]:  
-                    level = level +1 
-                    if(level <= 3):
-                        rows = rows +1 
-                        cols = cols +1
-                    elif(level <= 10):
-                       alien_cooldown = alien_cooldown - 200 # in MS
-                    elif(level <= 12):
-                        rows = rows +1 
-                        cols = cols +1
-                    elif(level <= 20):
-                       alien_cooldown = alien_cooldown - 25 # in MS
-                    # restart game 
-                    game_over = 0
+
+                    # restart game             
                     countdown = 0
+                    extra_life_point = 0 
+                    spaceship.health_remaining = spaceship.health_start
                     alien_group.empty()
+                    alien_bullet_group.empty()
+                    level = 1
+                    score = 0
+                    rows = 2
+                    cols = 2  
                     create_aliens()
+                    game_over = 0
+                    # Save data 
+                    update_data()
+
 
                 elif key[pygame.K_n]:
+                    # Save data 
+                    update_data()
                     run = False 
-                
+        elif game_over == 1:
+            #Game won     
+            draw_text('LEVEL WON!', font40, green, int(SCREEN_WIDTH/2 -100) ,int( SCREEN_HEIGHT/2))
+            draw_text('Continue to next level?', font40, white, int(SCREEN_WIDTH/2 - 130) ,int( SCREEN_HEIGHT/2 + 40))
+            draw_text('YES(Y) or NO(N)', font40, white, int(SCREEN_WIDTH/2 - 120) ,int( SCREEN_HEIGHT/2 + 80))
+            key = pygame.key.get_pressed()
+            if key[pygame.K_y]:  
+                level = level +1 
+                if(level <= 3):
+                    rows = rows +1 
+                    cols = cols +1
+                elif(level <= 6):
+                    alien_cooldown -= 10 # in MS
+                elif(level <= 12):
+                    rows = rows +1 
+                    cols = cols +1
+                elif(level <= 20):
+                    alien_cooldown -= 25 # in MS
+                # restart game 
+                game_over = 0
+                countdown = 0                
+                create_aliens()
 
-                                   
+            elif key[pygame.K_n]:
+                # Save data 
+                update_data()
+                # End game
+                run = False         
+                                
     if countdown > 0:
+
         draw_text('GET READY!', font40, white, int(SCREEN_WIDTH/2 -110) ,int( SCREEN_HEIGHT/2 ))
         draw_text(str(countdown), font40, red , int(SCREEN_WIDTH/2 -10) ,int( SCREEN_HEIGHT/2 + 40))
-       
+    
         count_timer = pygame.time.get_ticks()
         if count_timer - last_count > 1000: # 1second past
             countdown -= 1
@@ -539,7 +532,7 @@ while run:
 
     # -- Explosion Group
     explosion_group.update()
- 
+
     # Draw Sprite Groups
     # -- Display sprite groups: using -> draw() -> build in draw and update function of Sprite
     spaceship_group.draw(screen)
